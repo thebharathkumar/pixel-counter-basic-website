@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RGB Pixel Counter</title>
+  </head>
+  <body>
+    <h1>RGB Pixel Counter</h1>
+    <form id="upload-form">
+      <label for="image-upload">Choose an image to upload:</label>
+      <input type="file" id="image-upload" accept="image/*" required>
+      <br><br>
+      <label for="red-value">Red Value:</label>
+      <input type="number" id="red-value" min="0" max="255" required>
+      <br><br>
+      <label for="green-value">Green Value:</label>
+      <input type="number" id="green-value" min="0" max="255" required>
+      <br><br>
+      <label for="blue-value">Blue Value:</label>
+      <input type="number" id="blue-value" min="0" max="255" required>
+      <br><br>
+      <button type="submit">Submit</button>
+    </form>
+    <br>
+    <p id="result"></p>
+
+    <script>
+      const form = document.getElementById('upload-form');
+      const result = document.getElementById('result');
+
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+
+        result.textContent = 'Processing...';
+
+        const fileInput = document.getElementById('image-upload');
+        const redInput = document.getElementById('red-value');
+        const greenInput = document.getElementById('green-value');
+        const blueInput = document.getElementById('blue-value');
+
+        const file = fileInput.files[0];
+        const redValue = parseInt(redInput.value);
+        const greenValue = parseInt(greenInput.value);
+        const blueValue = parseInt(blueInput.value);
+
+        const reader = new FileReader();
+
+        reader.onload = event => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const pixels = imageData.data;
+            let pixelCount = 0;
+
+            for (let i = 0; i < pixels.length; i += 4) {
+              const red = pixels[i];
+              const green = pixels[i + 1];
+              const blue = pixels[i + 2];
+
+              if (red === redValue && green === greenValue && blue === blueValue) {
+                pixelCount++;
+              }
+            }
+
+            result.textContent = `Number of pixels with RGB(${redValue}, ${greenValue}, ${blueValue}): ${pixelCount}`;
+          };
+
+          img.src = event.target.result;
+        };
+
+        reader.readAsDataURL(file);
+      });
+    </script>
+  </body>
+</html>
